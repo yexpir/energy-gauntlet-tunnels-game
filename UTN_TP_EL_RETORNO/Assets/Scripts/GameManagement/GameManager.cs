@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SearchService;
 using UnityEngine;
-using UTN_TP.Character;
 
 namespace UTN_TP.GameManagement
 {
@@ -13,23 +11,23 @@ namespace UTN_TP.GameManagement
 
         public static event Action<GameState> OnGameStateChanged;
 
-        private List<GameState> stateHistory = new();
+        readonly List<GameState> _stateHistory = new();
 
         public GameState previousState;
+        public GameState currentState;
 
 
-        void Awake() => Instance = this;
+        void Awake() => Instance = Instance ? Instance : this;
 
         void Start() => UpdateGameState(GameState.MainMenu);
 
-       
 
         public void UpdateGameState(GameState newState)
         {
-            stateHistory.Add(newState); 
-            if(stateHistory.Count > 2) stateHistory.RemoveAt(0);
-            previousState = stateHistory[0];
-        
+            _stateHistory.Add(newState); 
+            if(_stateHistory.Count > 2) _stateHistory.RemoveAt(0);
+            previousState = _stateHistory[0];
+            currentState = newState;
             switch (newState)
             {
                 case GameState.MainMenu:
@@ -42,12 +40,13 @@ namespace UTN_TP.GameManagement
                     break;
                 case GameState.Options:
                     break;
-                case GameState.Exit:
-                    Exit();
+                case GameState.Quit:
+                    Quit();
                     break;
                 case GameState.Win:
                     break;
-                case GameState.Lose:
+                case GameState.Die:
+                    Lose();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
@@ -56,7 +55,7 @@ namespace UTN_TP.GameManagement
             OnGameStateChanged?.Invoke(newState);
 
         }
-        private void Play()
+        void Play()
         {
             if (previousState != GameState.Pause)
             {
@@ -66,20 +65,27 @@ namespace UTN_TP.GameManagement
             Time.timeScale = 1;
         }
 
-        private static void Pause() => Time.timeScale = 0;
+
+        static void Pause() => Time.timeScale = 0;
     
-        private void Exit()
+
+        static void Lose() => Loader.Reset();
+        public void Back()
         {
-            if(previousState == GameState.MainMenu) Application.Quit();
-            else
+            if (currentState == GameState.Pause)
             {
                 Loader.Reset();
+                UpdateGameState(GameState.MainMenu);
+                return;
             }
+            UpdateGameState(previousState);
         }
+
+        static void Quit() => Application.Quit();
 
         public void UnloadAsync(string s) => StartCoroutine(UnloadAsyncRoutine(s));
         
-        private IEnumerator UnloadAsyncRoutine(string s)
+        IEnumerator UnloadAsyncRoutine(string s)
         {
             var operation = Loader.UnloadAsync(s);
             while (!operation.isDone)
@@ -96,8 +102,8 @@ namespace UTN_TP.GameManagement
         Play,
         Pause,
         Options,
-        Exit,
+        Quit,
         Win,
-        Lose
+        Die
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UTN_TP.Character.Player;
 
 namespace UTN_TP.Character
 {

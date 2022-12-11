@@ -21,8 +21,9 @@ namespace UTN_TP.Character
         [SerializeField] Transform armTarget;
         [SerializeField] Transform armTargetStart;
         [SerializeField] Transform armTargetEnd;
-    
-    
+
+        [SerializeField] GameObject _punch;
+        
 
         [SerializeField] float _speed;
         Coroutine co;
@@ -48,6 +49,7 @@ namespace UTN_TP.Character
             {
                 time += _speed * Time.deltaTime;
                 armTarget.position = Vector3.Lerp(armTargetStart.position, armTargetEnd.position, _armTargetCurve.Evaluate(time));
+                HandlePunchHixBox(time);
                 if (time > .75f) _isInterruptible = true;
                 SetWeight(time);
                 yield return null;
@@ -91,6 +93,11 @@ namespace UTN_TP.Character
             _armAim.weight      = 0f;
             _forearmAim.weight  = 0f;
             _handAim.weight     = 0f;
+        }
+
+        void HandlePunchHixBox(float time)
+        {
+            _punch.SetActive(time is > .45f and <= .6f);
         }
 
     }

@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Linq;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -35,17 +32,17 @@ namespace UTN_TP.GameManagement
             }
         }
         public static AsyncOperation UnloadAsync(string s) => SceneManager.UnloadSceneAsync(s);
-        public static bool IsLoaded(string scene)
-        {
-            return SceneManager.GetSceneByName(scene).isLoaded;
-        }
+        static bool IsLoaded(string scene) => SceneManager.GetSceneByName(scene).isLoaded;
 
         public static bool AnyContains(string key)
         {
             var scenes = Enum.GetValues(typeof(Scenes));
-            return (from object scene in scenes select scene.ToString()).Any(s => IsLoaded(s) && s.Contains(key));
+            foreach (var scene in scenes)
+            {
+                var s = scene.ToString();
+                if (IsLoaded(s) && s.Contains(key)) return true;
+            }
+            return false;
         }
-
-        static void Print(object msg) => Debug.Log(msg);
     }
 }

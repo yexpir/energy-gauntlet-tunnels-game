@@ -1,4 +1,5 @@
 using UnityEngine;
+using UTN_TP.Character;
 
 namespace UTN_TP.GameManagement
 {
@@ -25,18 +26,28 @@ namespace UTN_TP.GameManagement
             GameManager.OnGameStateChanged += GameManagerOnStateChanged;
         }
 
-        private void GameManagerOnStateChanged(GameState state)
+        void GameManagerOnStateChanged(GameState state)
         {
-            print(state);
             _mainMenu.SetActive(state == GameState.MainMenu);
             _optionsMenu.SetActive(state == GameState.Options);
             _pauseMenu.SetActive(state == GameState.Pause);
-            //backGround.SetActive(state != GameState.Play);
+            backGround.SetActive(state != GameState.Play);
+            if (state == GameState.Play)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
         }
 
         public void PlayPressed()    => GameManager.Instance.UpdateGameState(GameState.Play);
         public void OptionsPressed() => GameManager.Instance.UpdateGameState(GameState.Options);
-        public void BackPressed()    => GameManager.Instance.UpdateGameState(GameManager.Instance.previousState);
-        public void ExitPressed()    => GameManager.Instance.UpdateGameState(GameState.Exit);
+        public void BackPressed()    => GameManager.Instance.Back();
+
+        public void QuitPressed()    => GameManager.Instance.UpdateGameState(GameState.Quit);
     }
 }

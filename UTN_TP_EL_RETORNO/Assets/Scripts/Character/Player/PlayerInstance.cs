@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UTN_TP.Character
 {
-    public class Player : MonoBehaviour
+    public class PlayerInstance : MonoBehaviour
     {
         public static GameObject Instance;
         void Awake() => Instance = gameObject;
